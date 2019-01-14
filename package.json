@@ -1,0 +1,94 @@
+{
+  "name": "almond-enterprise",
+  "version": "1.0.0",
+  "description": "Enterprise Almond",
+  "author": "Stanford University Mobile and Social Computing Lab",
+  "license": "GPL-3.0+",
+  "repository": "https://github.com/Stanford-Mobisocial-IoT-Lab/almond-enterprise",
+  "contributors": [
+    {
+      "name": "Giovanni Campagna",
+      "email": "gcampagn@cs.stanford.edu"
+    },
+    {
+      "name": "Silei Xu",
+      "email": "silei@cs.stanford.edu"
+    }
+  ],
+  "scripts": {
+    "update-pot": "xgettext -f po/POTFILES -o po/${npm_package_name}.pot --from-code UTF-8 --package-name ${npm_package_name} --package-version ${npm_package_version}; xargs -a po/POTFILES.jade jsxgettext -k _,gettext,ngettext,pgettext -L jade -o po/${npm_package_name}.pot -j",
+    "update-po": "for i in po/*.po ; do msgmerge -U $i po/${npm_package_name}.pot ; done",
+    "lint": "eslint almond/ browser/ model/ routes/ util/ training/ config.js main.js frontend.js",
+    "test": "nyc ./tests/everything.sh",
+    "prepare": "make prepare",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
+  },
+  "resolutions": {},
+  "dependencies": {
+    "accept-language": "^3.0.18",
+    "accepts": "^1.3.5",
+    "almond-dialog-agent": "^1.2.0",
+    "body-parser": "^1.18.3",
+    "cacheable-middleware": "^1.0.0",
+    "connect-flash": "~0.1.1",
+    "cookie-parser": "^1.4.3",
+    "csurf": "^1.9.0",
+    "deep-equal": "^1.0.1",
+    "errorhandler": "~1.4.2",
+    "express": "^4.15.2",
+    "express-mysql-session": "^2.0.0",
+    "express-session": "^1.14.0",
+    "express-ws": "^4.0.0",
+    "express-xml-bodyparser": "^0.3.0",
+    "gettext-parser": "^3.1.0",
+    "gm": "^1.23.1",
+    "jsonwebtoken": "^8.3.0",
+    "morgan": "^1.9.1",
+    "multer": "^1.4.1",
+    "mysql": "^2.16.0",
+    "node-gettext": "^2.0.0",
+    "nodemailer": "^4.7.0",
+    "notp": "^2.0.3",
+    "oauth2orize": "^1.11.0",
+    "passport": "^0.4.0",
+    "passport-http": "~0.3.0",
+    "passport-http-bearer": "~1.0.1",
+    "passport-local": "~1.0.0",
+    "passport-oauth2-client-password": "~0.1.2",
+    "passport-totp": "^0.0.2",
+    "pug": "^2.0.3",
+    "serve-favicon": "^2.3.0",
+    "smtlib": "^0.1.1",
+    "sockaddr": "^1.0.0",
+    "thingengine-core": "^1.2.0",
+    "thingpedia": "^2.2.2",
+    "thingpedia-client": "^0.2.0",
+    "thingpedia-discovery": "^1.0.0",
+    "thingtalk": "~1.4.1",
+    "thirty-two": "^1.0.2",
+    "tmp": "0.0.33",
+    "transparent-rpc": "^0.0.1"
+  },
+  "devDependencies": {
+    "babel-preset-es2015": "^6.14.0",
+    "babelify": "^7.3.0",
+    "browserify": "^16.1.1",
+    "coveralls": "^3.0.2",
+    "eslint": "^4.17.0",
+    "jsxgettext": "^0.10.1",
+    "nyc": "^13.0.1",
+    "pug-lint": "^2.4.0",
+    "selenium-webdriver": "^4.0.0-alpha.1",
+    "tough-cookie": "^2.4.3"
+  },
+  "optionalDependencies": {
+    "aws-sdk": "^2.2.48"
+  },
+  "nyc": {
+    "exclude": [
+      "coverage/**",
+      "tests/**",
+      "secret_config.js"
+    ]
+  }
+}

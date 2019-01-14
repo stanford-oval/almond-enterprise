@@ -1,0 +1,30 @@
+branches:
+  except:
+  - "/^wip/"
+language: node_js
+sudo: true
+addons:
+  mariadb: '10.2'
+  firefox: latest-esr
+node_js:
+- '8'
+before_install:
+- mkdir cvc4/
+- wget https://almond-static.stanford.edu/test-data/cvc4-1.6-x86_64-linux-opt
+  -O cvc4/cvc4
+- chmod +x cvc4/cvc4
+- mkdir geckodriver/
+- wget https://github.com/mozilla/geckodriver/releases/download/v0.22.0/geckodriver-v0.22.0-linux64.tar.gz
+- tar xvf geckodriver-v0.22.0-linux64.tar.gz -C geckodriver/
+- export PATH="`pwd`/cvc4:`pwd`/geckodriver:$PATH"
+- sudo apt-get update -q -y
+install:
+- sudo apt-get install -y graphicsmagick realpath
+- yarn
+before_script:
+- mysql -u root -e "create database if not exists almond_enterprise_test; grant all privileges
+  on almond_enterprise_test.* to 'almond-enterprise'@'%' identified by 'almond-enterprise';"
+script:
+- yarn lint
+- yarn test
+after_success: yarn run coverage
