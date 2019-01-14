@@ -1,0 +1,13 @@
+.section-title, .section-subtitle {
+    text-align: center;
+}
+
+#almond-subtitle {
+  margin-bottom: 0.5em !important;
+}
+
+#almond-logo {
+  display: block;
+  width: 250px;
+  margin: 0 auto 1em;
+}

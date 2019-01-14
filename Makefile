@@ -1,6 +1,6 @@
 all: prepare
 
-prepare: prepare-bundles prepare-mo prepare-docs
+prepare: prepare-bundles prepare-mo
 
 public/javascripts/%-bundle.js : browser/%.js browser/deps/*
 	browserify -o $@ $<

@@ -1,0 +1,14 @@
+extends layout
+block styles
+  link(rel='stylesheet', href=Config.ASSET_CDN + '/stylesheets/index.css')
+  link(rel='stylesheet', href='https://use.fontawesome.com/releases/v5.2.0/css/all.css')
+
+block page_name
+  - stdlayout = false;
+  = _("Almond")
+
+block content
+  div#page-body
+    section.divider#section-heading
+      h1#almond-title= _("Almond")
+      h2#almond-subtitle= _("Your Open Virtual Assistant")

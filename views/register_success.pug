@@ -1,0 +1,25 @@
+extends layout
+
+block scripts
+  script(src=Config.ASSET_CDN + '/javascripts/index.js')
+
+block page_name
+  - index = true;
+  | Almond
+
+block content
+  div#cloud-id-holder(data-cloud-id=user.cloud_id, data-auth-token=user.auth_token)
+
+  div.jumbotron.text-center
+    h1= _("Welcome to Almond, %s!").format(username)
+
+    p
+      = _("A verification email has been sent to your address. Some functionality on your account will be limited until you verify your email. You must click on the verification link to enable your account in full.")
+
+    p
+      form(action='/user/resend-verification', method='post').force-inline
+        input(type='hidden', name='_csrf', value=csrfToken)
+        button(type='submit').btn.btn-primary= _("Resend verification email")
+      |
+      |
+      a(href='/me').btn.btn-primary= _("Go to My Almond")

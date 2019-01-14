@@ -1,0 +1,15 @@
+extends layout
+
+block styles
+  link(rel='stylesheet', href=Config.ASSET_CDN + '/stylesheets/thingpedia.css')
+
+block page_name
+  - stdlayout = false;
+  = _("Administration")
+
+block content
+  ul
+    if user.roles & Constants.Role.ADMIN
+      li
+        a(href='/admin/users') Users
+

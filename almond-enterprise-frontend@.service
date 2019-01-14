@@ -1,0 +1,17 @@
+[Unit]
+Description=Almond Enterprise Web Service
+After=almond-enterprise.service
+Requires=almond-enterprise.service
+
+[Service]
+User=almond-enterprise
+WorkingDirectory=/var/lib/almond-enterprise
+EnvironmentFile=/etc/sysconfig/almond-enterprise
+Environment=PORT=%I
+ExecStart=/usr/bin/node /opt/almond-enterprise/main.js
+CapabilityBoundingSet=
+Restart=on-failure
+RestartSec=1s
+
+[Install]
+WantedBy=multi-user.target

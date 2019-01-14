@@ -1,0 +1,180 @@
+extends layout
+
+block scripts
+  script(src=Config.ASSET_CDN + '/javascripts/qrcode.js')
+  script(src=Config.ASSET_CDN + '/javascripts/profile.js')
+
+block page_name
+  = _("User Profile")
+
+block content
+  div.panel.panel-default
+    div.panel-heading
+      h2.panel-title= _("Personal information")
+
+    div.panel-body
+      if profile_error
+        div.alert.alert-danger.alert-dismissible.fade.in(role='alert')
+          button(type='button', data-dismiss='alert', aria-label="Close").close
+            span(aria-hidden='true') ×
+          if typeof profile_error === 'string'
+            p= profile_error
+          else if profile_error.message
+              p= profile_error.message
+          else
+            p= String(profile_error)
+
+      form(action='/user/resend-verification',method='post')#form-resend-email
+        input(type='hidden',name='_csrf',value=csrfToken)
+
+      form(action='/user/profile',method='post',data-toggle='validator')
+        input(type='hidden',name='_csrf',value=csrfToken)
+
+        div.form-group
+          label.control-label(for='username')= _("Username")
+          input(type='text',name='username',value=user.username).form-control#username
+
+        div.form-group
+          label.control-label(for='email')= _("E-Mail")
+          div.input-group
+            input(type='text',name='email',value=user.email).form-control#email
+            if user.email_verified
+              span.input-group-addon
+                span.glyphicon.glyphicon-ok(title=_("Your email was verified."),aria-label=_("Your email was verified."))
+            else
+              span.input-group-btn
+                //-span.glyphicon.glyphicon-remove(title=_("You did not verify your email yet."),aria-label=_("You did not verify your email yet."))
+                button(type='submit', form='form-resend-email').btn.btn-default= _("Resend verification")
+
+        div.form-group
+          label.control-label(for='human-name')= _("Real name")
+          input(type='text',name='human_name',value=user.human_name).form-control#human-name
+
+        //-div.form-group
+          div.checkbox
+            label
+              input(type='checkbox',name='show_human_name',value='1',checked=!!(user.profile_flags & Constants.ProfileFlags.SHOW_HUMAN_NAME))
+              = _("Show my real name in my public profile.")
+
+        //-div.form-group
+          div.checkbox
+            label
+              input(type='checkbox',name='show_profile_picture',value='1',checked=!!(user.profile_flags & Constants.ProfileFlags.SHOW_PROFILE_PICTURE))
+              = _("Show my profile picture in my public profile.")
+          span.help-block!=_("Your profile picture is automatically retrieved from <a href='https://en.gravatar.com'>Gravatar</a> using a secure hash of your email.</a>")
+
+        div.form-group
+          button(type='submit').btn.btn-primary= _("Update profile")
+          //-|
+          //-|
+          //a(href='/profiles/user/' + user.cloud_id).btn.btn-default= _("Show my public profile")
+
+  div.panel.panel-default
+    div.panel-heading
+      h2.panel-title= _("Access information")
+
+    div.panel-body
+      if pw_error
+        div.alert.alert-danger.alert-dismissible.fade.in(role='alert')
+          button(type='button', data-dismiss='alert', aria-label="Close").close
+            span(aria-hidden='true') ×
+          if typeof pw_error === 'string'
+            p= pw_error
+          else if pw_error.message
+              p= pw_error.message
+          else
+            p= String(pw_error)
+
+      form(action='/user/change-password',method='post',data-toggle='validator')
+        input(type='hidden',name='_csrf',value=csrfToken)
+
+        if !user.password
+          p.alert.alert-warning= _("You did not configure a password. You should provide one, in case you lose access to the account you logged in with.")
+          div.form-group
+            label(for='password').control-label= _("Password")
+            input(type='password',name='password',value='',maxlength=255,minlength=8,data-minlength=8).form-control#password
+            span.help-block= _("Minimum of 8 characters")
+          div.form-group#confirm-password-group
+            label(for='confirm-password').control-label= _("Confirm password")
+            input(type='password',name='confirm-password',value='',data-match='#password',data-match-error=_("The password and the confirmation must match")).form-control#confirm-password
+            span.help-block.with-errors
+        else
+          div.form-group
+            label(for='old-password').control-label= _("Old Password")
+            input(type='password',name='old_password',value='',required=true,maxlength=255,minlength=8,data-minlength=8).form-control#old-password
+          div.form-group
+            label(for='password').control-label= _("Password")
+            input(type='password',name='password',value='',required=true,maxlength=255,minlength=8,data-minlength=8).form-control#password
+            span.help-block= _("Minimum of 8 characters")
+          div.form-group#confirm-password-group
+            label(for='confirm-password').control-label= _("Confirm password")
+            input(type='password',name='confirm-password',value='',required=true,data-match='#password',data-match-error=_("The password and the confirmation must match")).form-control#confirm-password
+            span.help-block.with-errors
+
+        div.form-group
+          button(type='submit').btn.btn-primary= _("Change password")
+
+      hr
+      p
+        if user.totp_key
+          span.glyphicon.glyphicon-ok(aria-hidden='true')
+          |
+          |
+          = _("Two-factor authentication is enabled.")
+          |
+          |
+          a(href='/user/2fa/setup?force=1')= _("Configure again.")
+        else
+          span.glyphicon.glyphicon-warning-sign(aria-hidden='true')
+          |
+          |
+          = _("Two-factor authentication is not enabled.")
+          |
+          |
+          a(href='/user/2fa/setup').btn.btn-primary.btn-sm= _("Enable")
+
+      hr
+      p
+        a.btn.btn-danger(data-toggle='modal', data-target='#delete-account-dialog')= _("Delete account")
+
+        div.modal.fade#delete-account-dialog(role='dialog')
+          div.modal-dialog
+            div.modal-content
+              div.modal-header
+                a.close(data-dismiss='modal', aria-label="Close")
+                  span(aria-hidden='true') ×
+
+                h4.modal-title= _("Are you sure you want to delete your account?")
+
+              div.modal-body
+                p= _("Deleting the account is an irreversible operation. All the data stored on the server will be lost permanently.")
+
+                form(action='/user/delete', method='post')
+                  input(type='hidden',name='_csrf',value=csrfToken)
+
+                  div.form-group
+                    button(type='submit').btn.btn-danger= _("Yes, I want to delete my account")
+                    |
+                    a.btn.btn-default(data-dismiss='modal')= _("No, I changed my mind")
+
+  div.panel.panel-default#user-authorized-oauth-panel
+    div.panel-heading
+      h2.panel-title= _("Authorized third-party apps")
+
+    if oauth_permissions.length > 0
+      ul.list-group
+        for client in oauth_permissions
+          li.list-group-item.clearfix
+            div.pull-left
+              img(src=CDN_HOST + '/icons/oauth:' + client.id + '.png', role='presentation').device-icon-tiny
+            div.pull-left
+              h4= client.name
+              p= _("By %s").format(client.owner_name)
+            div.pull-right
+              form(action='/user/revoke-oauth2',method='post')
+                input(type='hidden',name='_csrf',value=csrfToken)
+                input(type='hidden',name='client_id',value=client.id)
+                button(type='submit').btn.btn-danger= _("Revoke")
+    else
+      div.panel-body
+        p= _("You have not authorized any third-party app.")

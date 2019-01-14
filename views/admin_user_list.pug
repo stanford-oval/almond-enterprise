@@ -1,0 +1,70 @@
+extends layout
+
+block page_name
+  = _("Almond User List")
+
+block styles
+  link(rel='stylesheet', href=Config.ASSET_CDN + '/stylesheets/admin.css')
+
+block scripts
+  script(src=Config.ASSET_CDN + '/javascripts/admin.js')
+
+block content
+  div.navbar.navbar-default#user-search-navbar
+    form.navbar-form.navbar-left(action='/admin/users/search',method='get')
+      div.form-group
+        input.form-control#user-search-box(type='text', name='q', value=search)
+        button.btn.btn-primary(type="submit")= _("Search")
+
+  nav
+    ul.pager
+      if page_num > 0
+        li
+          a(href='/admin/users?page=' + (page_num-1))= _("Previous")
+      if users.length > USERS_PER_PAGE
+        li
+          a(href='/admin/users?page=' + (page_num+1))= _("Next")
+
+  table.table#users-table
+    thead
+      tr
+        th #
+        th= _("User name")
+        th= _("Human name")
+        th= _("Roles")
+        th(colspan=2)= _("Actions")
+    tbody
+      each user in users.slice(0,USERS_PER_PAGE)
+        tr
+          td
+            span(title=user.cloud_id)= user.id
+          td
+            a(href='mailto:' + user.email)= user.username
+          td= user.human_name
+          td
+            if user.roles !== 0
+              - let roles = []
+              if user.roles & Constants.Role.ADMIN
+                - roles.push(_("Site Admin"))
+              = roles.join(', ')
+            else
+              span(title=user.developer_key)= _("User")
+          td.dropdown
+            button(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false', id='button-actions-' + user.id).btn.btn-default
+              = _("Actions")
+              span.caret
+
+            ul.dropdown-menu(aria-labelledby='button-actions-' + user.id).actions-dropdown
+              li
+                form(action='/admin/users/delete/' + user.id, method='post').form-delete-user
+                  input(type='hidden',name='_csrf',value=csrfToken)
+                  button(type='submit').btn.btn-danger.form-control= _("Delete user")
+
+  nav
+    ul.pager
+      if page_num > 0
+        li
+          a(href='/admin/users?page=' + (page_num-1))= _("Previous")
+      if users.length > USERS_PER_PAGE
+        li
+          a(href='/admin/users?page=' + (page_num+1))= _("Next")
