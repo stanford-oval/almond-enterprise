@@ -9,6 +9,13 @@
 // See COPYING for details
 "use strict";
 
+// The policy module to use
+// This allows to inject different authorization policies defining who is allowed to
+// create ThingTalk permission rules, ThingTalk programs, etc.
+// By default, administrators can do everything, and normal users can do what is allowed
+// by TT permission rules (and cannot set new rules)
+module.exports.POLICY_MODULE = require('./modules/default');
+
 // The CDN to use for website assets (javascript, css, images files contained in public/ )
 // If you are using CloudFront+S3, you can use `./scripts/sync-assets-to-s3.sh ${s3_bucket}`
 // to upload the assets. If you are using CloudFront+ELB, you can simply point the

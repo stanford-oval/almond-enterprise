@@ -1,8 +1,5 @@
 extends layout
 
-block scripts
-  script(src=Config.ASSET_CDN + '/javascripts/register.js')
-
 block page_name
   = _("Register")
 
@@ -20,7 +17,7 @@ block content
 
   form(action='/user/register', method='post', data-toggle='validator')
     input(type='hidden',name='_csrf',value=csrfToken)
-    input(type='hidden',name='timezone')#timezone
+    input(type='hidden',name='role',value=role)
     div.form-group
       label(for='username').control-label= _("Username")
       input(type='text',name='username',value='',required=true,maxlength=255,autocorrect='off',autocapitalize='none').form-control#username
@@ -37,18 +34,8 @@ block content
       input(type='password',name='confirm-password',value='',required=true,data-match='#password',data-match-error=_("The password and the confirmation must match")).form-control#confirm-password
       span.help-block.with-errors
 
-    input(type='hidden',name='locale',value='en-US')
-    //-div.form-group
-      label(for='locale').control-label= _("Language")
-      select(name='locale').form-control#locale
-        option(value='en-US',selected=true)= _("English (United States)")
-        option(value='en-GB')= _("English (United Kingdom)")
-        option(value='it-IT')= _("Italian")
-        option(value='zh-CN')= _("Chinese (simplified)")
-        //option(value='es-ES')= _("Spanish")
-
     div.form-group
       button(type='submit').btn.btn-primary= _("Register")
 
     p
-      small!= _("By clicking Register above, you agree to the <a href='/about/tos'>terms of service</a> of the Almond service.")
+      small!= _("By clicking Register above, you agree to the <a href='/about/tos'>terms of service</a>.")

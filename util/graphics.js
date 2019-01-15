@@ -11,7 +11,6 @@
 
 // Graphics API abstraction, based on nodejs-gm
 
-const Q = require('q');
 const gm = require('gm');
 
 class Image {
@@ -20,7 +19,14 @@ class Image {
     }
 
     getSize() {
-        return Q.ninvoke(this._gm, 'size');
+        return new Promise((resolve, reject) => {
+            this._gm.size((err, res) => {
+                if (err)
+                    reject(err);
+                else
+                    resolve(res);
+            });
+        });
     }
 
     resizeFit(width, height) {
@@ -28,11 +34,25 @@ class Image {
     }
 
     stream(format) {
-        return Q.ninvoke(this._gm, 'stream', format);
+        return new Promise((resolve, reject) => {
+            this._gm.stream(format, (err, res) => {
+                if (err)
+                    reject(err);
+                else
+                    resolve(res);
+            });
+        });
     }
 
     toBuffer() {
-        return Q.ninvoke(this._gm, 'toBuffer');
+        return new Promise((resolve, reject) => {
+            this._gm.toBuffer((err, res) => {
+                if (err)
+                    reject(err);
+                else
+                    resolve(res);
+            });
+        });
     }
 }
 

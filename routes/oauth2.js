@@ -255,7 +255,7 @@ function validateRedirectUrls(urls) {
     return urls;
 }
 
-router.post('/clients/create', csurf({ cookie: false }), user.requireLogIn, user.requireRole(user.Role.ADMIN), (req, res, next) => {
+router.post('/clients/create', csurf({ cookie: false }), user.requireLogIn, user.requireCap(user.Capability.ADMIN), (req, res, next) => {
     const name = req.body.name;
     let scopes, redirectUrls;
     try {

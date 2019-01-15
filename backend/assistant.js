@@ -2,14 +2,13 @@
 //
 // This file is part of ThingEngine
 //
-// Copyright 2016 The Board of Trustees of the Leland Stanford Junior University
+// Copyright 2016-2019 The Board of Trustees of the Leland Stanford Junior University
 //
 // Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 //
 // See COPYING for details
 "use strict";
 
-const Q = require('q');
 const events = require('events');
 
 const Almond = require('almond-dialog-agent');
@@ -17,9 +16,13 @@ const Almond = require('almond-dialog-agent');
 
 const Config = require('../config');
 
+const PolicyModule = Config.POLICY_MODULE;
+const AlmondUser = PolicyModule.AlmondUser;
+
 class Conversation extends Almond {
 }
 Conversation.prototype.$rpcMethods = ['start', 'handleCommand', 'handleParsedCommand', 'handleThingTalk'];
+
 
 module.exports = class Assistant extends events.EventEmitter {
     constructor(engine, options) {
@@ -49,13 +52,13 @@ module.exports = class Assistant extends events.EventEmitter {
     }
 
     notifyAll(...data) {
-        return Q.all(Object.keys(this._conversations).map((id) => {
+        return Promise.all(Object.keys(this._conversations).map((id) => {
             return this._conversations[id].notify(...data);
         }));
     }
 
     notifyErrorAll(...data) {
-        return Q.all(Object.keys(this._conversations).map((id) => {
+        return Promise.all(Object.keys(this._conversations).map((id) => {
             return this._conversations[id].notifyError(...data);
         }));
     }
@@ -74,7 +77,7 @@ module.exports = class Assistant extends events.EventEmitter {
         }
         options = options || {};
         options.sempreUrl = this._url;
-        let conv = this.openConversation(id, user, delegate, options);
+        let conv = this.openConversation(id, new AlmondUser(user), delegate, options);
         return Promise.resolve(conv.start()).then(() => conv);
     }
 
@@ -85,7 +88,7 @@ module.exports = class Assistant extends events.EventEmitter {
         }
         options = options || {};
         options.sempreUrl = this._url;
-        var conv = new Conversation(this._engine, feedId, user, delegate, options);
+        var conv = new Conversation(this._engine, feedId, new AlmondUser(user), delegate, options);
         conv.on('active', () => this._lastConversation = conv);
         this._lastConversation = conv;
         this._conversations[feedId] = conv;

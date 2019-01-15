@@ -148,7 +148,7 @@ async function testRegister(driver) {
     await logIn.click();
 
     const signUpNow = await driver.wait(
-        WD.until.elementLocated(WD.By.linkText('Sign up now!')),
+        WD.until.elementLocated(WD.By.linkText('Sign up as User')),
         30000);
     await checkAllImages(driver);
 

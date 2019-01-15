@@ -20,21 +20,21 @@ function create(client, user) {
 
 module.exports = {
     get(client, id) {
-        return db.selectOne(client, "select u.* from users u where u.id = ?", [id]);
+        return db.selectOne(client, "select u.*,r.name as role_name,if(approved,r.caps,0) as caps from users u, roles r where u.id = ? and r.id = u.role", [id]);
     },
 
     getSearch(client, search) {
         search = '%' + search + '%';
-        return db.selectAll(client, "select u.* from users u where username like ? or human_name like ? or email like ?",
+        return db.selectAll(client, "select u.*,r.name as role_name,if(approved,r.caps,0) as caps from users u, roles r where username like ? or human_name like ? or email like ? and r.id = u.role",
                             [search, search, search]);
     },
 
     getByName(client, username) {
-        return db.selectAll(client, "select u.* from users u where username = ?", [username]);
+        return db.selectAll(client, "select u.*,r.name as role_name,if(approved,r.caps,0) as caps from users u, roles r where username = ? and r.id = u.role", [username]);
     },
 
     getByCloudId(client, cloudId) {
-        return db.selectAll(client, "select u.* from users u where cloud_id = ?", [cloudId]);
+        return db.selectAll(client, "select u.*,r.name as role_name,if(approved,r.caps,0) as caps from users u, roles r where cloud_id = ? and r.id = u.role", [cloudId]);
     },
 
     getIdByCloudId(client, cloudId) {
@@ -52,9 +52,9 @@ module.exports = {
 
     getAll(client, start, end) {
         if (start !== undefined && end !== undefined)
-            return db.selectAll(client, "select u.* from users u order by id limit ?,?", [start,end]);
+            return db.selectAll(client, "select u.*,r.name as role_name,if(approved,r.caps,0) as caps from users u, roles r where r.id = u.role order by u.id limit ?,?", [start,end]);
         else
-            return db.selectAll(client, "select u.* from users u order by id");
+            return db.selectAll(client, "select u.*,r.name as role_name,if(approved,r.caps,0) as caps from users u, roles r where r.id = u.role order by u.id");
     },
 
     recordLogin(client, userId) {

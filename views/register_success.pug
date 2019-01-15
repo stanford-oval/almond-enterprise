@@ -13,8 +13,12 @@ block content
   div.jumbotron.text-center
     h1= _("Welcome to Almond, %s!").format(username)
 
-    p
-      = _("A verification email has been sent to your address. Some functionality on your account will be limited until you verify your email. You must click on the verification link to enable your account in full.")
+    if user.approved
+      p
+        = _("A verification email has been sent to your address. Some functionality on your account will be limited until you verify your email. You must click on the verification link to enable your account in full.")
+    else
+      p
+        = _("You must be approved by an administrator to complete registration as %s. To do so, you must first verify your email address, using the link that was sent to you. Once you do that, an administrator will review your profile and enable it.")
 
     p
       form(action='/user/resend-verification', method='post').force-inline

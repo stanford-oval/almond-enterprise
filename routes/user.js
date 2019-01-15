@@ -9,7 +9,6 @@
 // See COPYING for details
 "use strict";
 
-const Q = require('q');
 const Url = require('url');
 const Tp = require('thingpedia');
 const express = require('express');
@@ -23,6 +22,7 @@ const totp = require('notp').totp;
 const userUtils = require('../util/user');
 const model = require('../model/user');
 const oauthModel = require('../model/oauth2');
+const roleModel = require('../model/role');
 const db = require('../util/db');
 const secret = require('../util/secret_key');
 const SendMail = require('../util/sendmail');
@@ -42,10 +42,15 @@ router.get('/login', (req, res, next) => {
         return;
     }
 
-    res.render('login', {
-        csrfToken: req.csrfToken(),
-        errors: req.flash('error'),
-        page_title: req._("Almond - Login")
+    db.withClient((dbClient) => {
+        return roleModel.getAllWithFlag(userUtils.RoleFlags.CAN_REGISTER);
+    }).then((roles) => {
+        res.render('login', {
+            csrfToken: req.csrfToken(),
+            errors: req.flash('error'),
+            page_title: req._("Almond - Login"),
+            roles
+        });
     });
 });
 
@@ -157,7 +162,8 @@ router.post('/2fa/setup', userUtils.requireLogIn, (req, res, next) => {
 router.get('/register', (req, res, next) => {
     res.render('register', {
         csrfToken: req.csrfToken(),
-        page_title: req._("Almond - Register")
+        page_title: req._("Almond - Register"),
+        role: req.query.role
     });
 });
 
@@ -186,6 +192,17 @@ register an account on the Almond service at <${Config.SERVER_ORIGIN}>.
     };
 
     return SendMail.send(mailOptions);
+}
+
+function login(req, user) {
+    return new Promise((resolve, reject) => {
+        req.login(user, (err) => {
+            if (err)
+                reject(err);
+            else
+                resolve();
+        });
+    });
 }
 
 router.post('/register', (req, res, next) => {
@@ -233,6 +250,21 @@ router.post('/register', (req, res, next) => {
 
     Promise.resolve().then(async () => {
         const user = await db.withTransaction(async (dbClient) => {
+            let role;
+            try {
+                role = await roleModel.get(dbClient, req.body.role);
+                if ((role.flags & userUtils.RoleFlags.CAN_REGISTER) !== userUtils.RoleFlags.CAN_REGISTER)
+                    throw new Error(`Cannot register in role ${req.body.role}`);
+            } catch(e) {
+                res.render('error', {
+                    page_title: req._("Almond - Error"),
+                    error: e
+                });
+                return null;
+            }
+            options.role = role.id;
+            options.approved = !(role.flags & userUtils.RoleFlags.REQUIRE_APPROVAL);
+
             let user;
             try {
                 user = await userUtils.register(dbClient, req, options);
@@ -244,7 +276,7 @@ router.post('/register', (req, res, next) => {
                 });
                 return null;
             }
-            await Q.ninvoke(req, 'login', user);
+            await login(req, user);
             return user;
         });
         if (!user)
@@ -257,9 +289,7 @@ router.post('/register', (req, res, next) => {
         res.locals.user = user;
         res.render('register_success', {
             page_title: req._("Almond - Registration Successful"),
-            username: options.username,
-            cloudId: user.cloud_id,
-            authToken: user.auth_token });
+            username: options.username });
     }).catch(next);
 });
 
@@ -269,17 +299,6 @@ router.get('/logout', (req, res, next) => {
     req.session.completed2fa = false;
     res.locals.authenticated = false;
     res.redirect(303, '/');
-});
-
-router.post('/subscribe', (req, res, next) => {
-    let email = req.body['email'];
-    Tp.Helpers.Http.post('https://mailman.stanford.edu/mailman/subscribe/thingpedia-support',
-                         `email=${encodeURIComponent(email)}&digest=0&email-button=Subscribe`,
-                         { dataContentType: 'application/x-www-form-urlencoded' }).then(() => {
-        res.json({ result: 'ok' });
-    }).catch((e) => {
-        res.status(400).json({ error: e });
-    }).catch(next);
 });
 
 router.get('/verify-email/:token', userUtils.requireLogIn, (req, res, next) => {
@@ -471,7 +490,7 @@ router.post('/recovery/continue', (req, res, next) => {
 
         const user = users[0];
         await userUtils.resetPassword(dbClient, user, req.body.password);
-        await Q.ninvoke(req, 'login', user);
+        await login(req, user);
         await model.recordLogin(dbClient, user.id);
 
         // we have completed 2fa above

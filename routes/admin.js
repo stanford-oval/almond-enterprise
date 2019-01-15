@@ -21,12 +21,12 @@ const USERS_PER_PAGE = 50;
 
 router.use(user.requireLogIn);
 
-router.get('/', user.requireAnyRole, (req, res, next) => {
+router.get('/', user.requireAnyCap(user.Capability.ALL_ADMIN), (req, res, next) => {
     res.render('admin_portal', { page_title: req._("Almond - Administration"),
                                  csrfToken: req.csrfToken() });
 });
 
-router.get('/users', user.requireRole(user.Role.ADMIN), (req, res) => {
+router.get('/users', user.requireCap(user.Capability.MANAGE_USERS), (req, res) => {
     let page = req.query.page;
     if (page === undefined)
         page = 0;
@@ -43,10 +43,10 @@ router.get('/users', user.requireRole(user.Role.ADMIN), (req, res) => {
                                         page_num: page,
                                         search: '',
                                         USERS_PER_PAGE });
-    }).done();
+    });
 });
 
-router.get('/users/search', user.requireRole(user.Role.ADMIN), (req, res) => {
+router.get('/users/search', user.requireCap(user.Capability.MANAGE_USERS), (req, res) => {
     db.withClient((dbClient) => {
         if (req.query.q !== '' && !isNaN(req.query.q))
             return Promise.all([model.get(dbClient, Number(req.query.q))]);
@@ -59,24 +59,35 @@ router.get('/users/search', user.requireRole(user.Role.ADMIN), (req, res) => {
                                         page_num: 0,
                                         search: req.query.search,
                                         USERS_PER_PAGE });
-    }).done();
+    });
 });
 
-router.post('/users/delete/:id', user.requireRole(user.Role.ADMIN), (req, res) => {
-    if (req.user.id === req.params.id) {
+router.post('/users/delete', user.requireCap(user.Capability.ADMIN), (req, res) => {
+    if (req.user.id === req.body.id) {
         res.render('error', { page_title: req._("Almond - Error"),
                               message: req._("You cannot delete yourself") });
         return;
     }
 
     db.withTransaction((dbClient) => {
-        return model.delete(dbClient, req.params.id);
+        return model.delete(dbClient, req.body.id);
     }).then(() => {
         res.redirect(303, '/admin/users');
     }).catch((e) => {
         res.status(500).render('error', { page_title: req._("Almond - Error"),
                                           message: e });
-    }).done();
+    });
+});
+
+router.post('/users/approve', user.requireCap(user.Capability.MANAGE_USERS), (req, res) => {
+    db.withTransaction((dbClient) => {
+        return model.update(dbClient, req.body.id, { approved: true });
+    }).then(() => {
+        res.redirect(303, '/admin/users');
+    }).catch((e) => {
+        res.status(500).render('error', { page_title: req._("Almond - Error"),
+                                          message: e });
+    });
 });
 
 module.exports = router;

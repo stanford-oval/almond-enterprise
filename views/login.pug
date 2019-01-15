@@ -22,6 +22,9 @@ block content
       button(type='submit').btn.btn-primary= _("Log in")
 
   p= _("Don't have a username and password yet? ")
-    a(href='/user/register')= _("Sign up now!")
+    for role in roles
+      a(href='/user/register?role=' + role.id)= _("Sign up as %s").format(role.name)
+      |
+      |
   p
     a(href='/user/recovery/start')= _("I forgot my password")

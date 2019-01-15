@@ -10,7 +10,6 @@
 "use strict";
 
 const mysql = require('mysql');
-const Q = require('q');
 
 function getDB() {
     var url = process.env.DATABASE_URL;
@@ -21,7 +20,14 @@ function getDB() {
 }
 
 function query(client, string, args) {
-    return Q.ninvoke(client, 'query', string, args);
+    return new Promise((resolve, reject) => {
+        client.query(string, args, (err, rows, fields) => {
+            if (err)
+                reject(err);
+            else
+                resolve([rows, fields]);
+        });
+    });
 }
 
 function rollback(client, err, done) {
@@ -61,7 +67,14 @@ function getPool() {
 }
 
 function connect() {
-    return Q.ninvoke(getPool(), 'getConnection').then((connection) => {
+    return new Promise((resolve, reject) => {
+        getPool().getConnection((err, connection) => {
+            if (err)
+                reject(err);
+            else
+                resolve(connection);
+        });
+    }).then((connection) => {
         function done(error) {
             if (error !== undefined)
                 connection.destroy();
@@ -103,14 +116,6 @@ module.exports = {
     },
 
     withTransaction(transaction, isolationLevel = 'serializable') {
-        // NOTE: some part of the code still rely on db.withClient
-        // and db.withTransaction returning a Q.Promise rather than
-        // a native Promise (eg they use .done() or .finally())
-        // hence, you must not convert this function to async (as
-        // that always returns a native Promise)
-        // using async for callbacks is fine, as long as the first
-        // returned promise is Q.Promise
-
         return connect().then(async ([client, done]) => {
             // danger! we're pasting strings into SQL
             // this is ok because the argument NEVER comes from user input

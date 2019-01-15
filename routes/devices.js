@@ -14,14 +14,14 @@ var router = express.Router();
 
 const user = require('../util/user');
 
-router.get('/', user.requireLogIn, user.requireRole(user.Role.MANAGE_DEVICES), (req, res, next) => {
+router.get('/', user.requireLogIn, user.requireCap(user.Capability.MANAGE_DEVICES), (req, res, next) => {
     req.app.backend.getAllDevices().then((devices) => {
         devices = devices.filter((d) => !d.isThingEngine);
         res.render('devices_list', { page_title: 'Almond - Configured Devices', devices });
     }).catch(next);
 });
 
-router.get('/create', user.requireLogIn, user.requireRole(user.Role.MANAGE_DEVICES), (req, res, next) => {
+router.get('/create', user.requireLogIn, user.requireCap(user.Capability.MANAGE_DEVICES), (req, res, next) => {
     if (req.query.class && ['online', 'physical', 'data'].indexOf(req.query.class) < 0) {
         res.status(404).render('error', { page_title: req._("Almond - Error"),
                                           message: req._("Invalid device class") });
@@ -35,7 +35,7 @@ router.get('/create', user.requireLogIn, user.requireRole(user.Role.MANAGE_DEVIC
                                  });
 });
 
-router.post('/create', user.requireLogIn, user.requireRole(user.Role.MANAGE_DEVICES), (req, res, next) => {
+router.post('/create', user.requireLogIn, user.requireCap(user.Capability.MANAGE_DEVICES), (req, res, next) => {
     Promise.resolve().then(async () => {
         if (typeof req.body['kind'] !== 'string' ||
             req.body['kind'].length === 0) {
@@ -55,7 +55,7 @@ router.post('/create', user.requireLogIn, user.requireRole(user.Role.MANAGE_DEVI
     }).catch(next);
 });
 
-router.post('/delete', user.requireLogIn, user.requireRole(user.Role.MANAGE_DEVICES), (req, res, next) => {
+router.post('/delete', user.requireLogIn, user.requireCap(user.Capability.MANAGE_DEVICES), (req, res, next) => {
     Promise.resolve().then(async () => {
         const ok = await req.app.backend.deleteDevice(req.body.id);
         if (!ok) {
@@ -67,7 +67,7 @@ router.post('/delete', user.requireLogIn, user.requireRole(user.Role.MANAGE_DEVI
     }).catch(next);
 });
 
-router.get('/oauth2/:kind', user.requireLogIn, user.requireRole(user.Role.MANAGE_DEVICES), (req, res, next) => {
+router.get('/oauth2/:kind', user.requireLogIn, user.requireCap(user.Capability.MANAGE_DEVICES), (req, res, next) => {
     Promise.resolve().then(async () => {
         const [ok, redirect, session] = await req.app.backend.startOAuth2(req.params.kind);
 
@@ -81,7 +81,7 @@ router.get('/oauth2/:kind', user.requireLogIn, user.requireRole(user.Role.MANAGE
     }).catch(next);
 });
 
-router.get('/oauth2/callback/:kind', user.requireLogIn, user.requireRole(user.Role.MANAGE_DEVICES), (req, res, next) => {
+router.get('/oauth2/callback/:kind', user.requireLogIn, user.requireCap(user.Capability.MANAGE_DEVICES), (req, res, next) => {
     Promise.resolve().then(async () => {
         await req.app.backend.handleOAuth2Callback(req.params.kind, req.url, req.session);
         res.redirect('/admin/devices');

@@ -80,7 +80,7 @@ exports.initialize = function() {
             done(null, result[0], { message: result[1] });
         }, (err) => {
             done(err);
-        }).done();
+        });
     }));
 
     passport.use(new TotpStrategy((user, done) => {

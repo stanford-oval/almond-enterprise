@@ -8,10 +8,10 @@ block page_name
 
 block content
   ul
-    if user.roles & Constants.Role.ADMIN
+    if user.caps & Constants.Capability.MANAGE_USERS
       li
         a(href='/admin/users') Users
-    if user.roles & Constants.Role.MANAGE_DEVICES
+    if user.caps & Constants.Capability.MANAGE_DEVICES
       li
         a(href='/admin/devices') Configured devices
 

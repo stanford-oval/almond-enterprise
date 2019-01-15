@@ -12,8 +12,6 @@
 require('thingengine-core/lib/polyfill');
 process.on('unhandledRejection', (up) => { throw up; });
 
-const assert = require('assert');
-
 const db = require('../util/db');
 const user = require('../util/user');
 const platform = require('../util/platform');
@@ -28,6 +26,8 @@ async function main() {
             username: 'bob',
             password: '12345678',
             email: 'bob@localhost',
+            role: 1, // default role
+            approved: true,
         });
     });
 

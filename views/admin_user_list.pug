@@ -31,7 +31,8 @@ block content
         th #
         th= _("User name")
         th= _("Human name")
-        th= _("Roles")
+        th= _("Role")
+        th= _("Privileges")
         th(colspan=2)= _("Actions")
     tbody
       each user in users.slice(0,USERS_PER_PAGE)
@@ -41,24 +42,45 @@ block content
           td
             a(href='mailto:' + user.email)= user.username
           td= user.human_name
+          td= user.role_name
           td
-            if user.roles !== 0
-              - let roles = []
-              if user.roles & Constants.Role.ADMIN
-                - roles.push(_("Site Admin"))
-              = roles.join(', ')
+            if user.caps !== 0
+              - let caps = []
+              if user.caps & Constants.Capability.ADMIN
+                - caps.push(_("Site Admin"))
+              if user.caps & Constants.Capability.MANAGE_USERS
+                - caps.push(_("User Manager"))
+              if user.caps & Constants.Capability.MANAGE_DEVICES
+                - caps.push(_("Device Manager"))
+              if user.caps & Constants.Capability.MANAGE_OWN_PERMISSIONS
+                - caps.push(_("Manage Own Permissions"))
+              if user.caps & Constants.Capability.MANAGE_ALL_PERMISSIONS
+                - caps.push(_("Permission Manager"))
+              if user.caps & Constants.Capability.MANAGE_OWN_COMMANDS
+                - caps.push(_("Manage Own Commands"))
+              if user.caps & Constants.Capability.MANAGE_ALL_PERMISSIONS
+                - caps.push(_("Command Manager"))
+              = caps.join(', ')
             else
-              span(title=user.developer_key)= _("User")
+              span(title=user.developer_key)= _("None")
           td.dropdown
             button(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false', id='button-actions-' + user.id).btn.btn-default
               = _("Actions")
               span.caret
 
             ul.dropdown-menu(aria-labelledby='button-actions-' + user.id).actions-dropdown
-              li
-                form(action='/admin/users/delete/' + user.id, method='post').form-delete-user
-                  input(type='hidden',name='_csrf',value=csrfToken)
-                  button(type='submit').btn.btn-danger.form-control= _("Delete user")
+              if user.caps & Constants.Capability.ADMIN
+                li
+                  form(action='/admin/users/delete', method='post').form-delete-user
+                    input(type='hidden',name='_csrf',value=csrfToken)
+                    input(type='hidden',name='id',value=user.id)
+                    button(type='submit').btn.btn-danger.form-control= _("Delete user")
+              if (user.caps & Constants.Capability.MANAGE_USERS) && !user.approved
+                li
+                  form(action='/admin/users/approve', method='post').form-delete-user
+                    input(type='hidden',name='_csrf',value=csrfToken)
+                    input(type='hidden',name='id',value=user.id)
+                    button(type='submit').btn.btn-danger.form-control= _("Approve user")
 
   nav
     ul.pager

@@ -115,7 +115,7 @@ class Frontend {
             // set by various pages
             res.locals.Config = Config;
             res.locals.Constants = {
-                Role: userUtils.Role,
+                Capability: userUtils.Capability,
                 ProfileFlags: userUtils.ProfileFlags
             };
             next();

@@ -9,14 +9,15 @@
 // See COPYING for details
 "use strict";
 
-const Q = require('q');
 const assert = require('assert');
 const crypto = require('crypto');
+const util = require('util');
+
 const model = require('../model/user');
 const { makeRandom } = require('./random');
 
 function hashPassword(salt, password) {
-    return Q.nfcall(crypto.pbkdf2, password, salt, 10000, 32, 'sha1')
+    return util.promisify(crypto.pbkdf2)(password, salt, 10000, 32, 'sha1')
         .then((buffer) => buffer.toString('hex'));
 }
 
@@ -44,15 +45,28 @@ function isAuthenticated(req) {
     return req.session.completed2fa;
 }
 
+const Capability = {
+    ADMIN: 1,
+    MANAGE_USERS: 2,
+    MANAGE_DEVICES: 4,
+    MANAGE_OWN_PERMISSIONS: 8,
+    MANAGE_ALL_PERMISSIONS: 16,
+    MANAGE_OWN_COMMANDS: 32,
+    MANAGE_ALL_COMMANDS: 64,
+
+    // all privileges
+    ROOT: 127,
+    // all admin privileges
+    ALL_ADMIN: 1+2+4+16+64
+};
+
 module.exports = {
     OAuthScopes,
+    Capability,
 
-    Role: {
-        ADMIN: 1,
-        MANAGE_DEVICES: 2,
-
-        // all privileges
-        ROOT: 3
+    RoleFlags: {
+        CAN_REGISTER: 1,
+        REQUIRE_APPROVAL: 2
     },
 
     ProfileFlags: {
@@ -73,10 +87,11 @@ module.exports = {
                     human_name: options.human_name || null,
                     password: hash,
                     email: options.email,
+                    role: options.role,
+                    approved: options.approved,
                     email_verified: options.email_verified || false,
                     salt: salt,
                     cloud_id: cloudId,
-                    roles: options.roles || 0,
                     profile_flags: options.profile_flags || 0,
                 });
             });
@@ -129,11 +144,11 @@ module.exports = {
         }
     },
 
-    requireRole(role) {
-        if (typeof role !== 'number')
+    requireCap(cap) {
+        if (typeof cap !== 'number')
             throw new TypeError(`Invalid call to requireRole`);
         return function(req, res, next) {
-            if ((req.user.roles & role) !== role) {
+            if ((req.user.caps & cap) !== cap) {
                 res.status(403).render('error', {
                     page_title: req._("Thingpedia - Error"),
                     message: req._("You do not have permission to perform this operation.")
@@ -144,15 +159,19 @@ module.exports = {
         };
     },
 
-    requireAnyRole(req, res, next) {
-        if (req.user.roles === 0 && req.user.developer_status < 3) {
-            res.status(403).render('error', {
-                page_title: req._("Thingpedia - Error"),
-                message: req._("You do not have permission to perform this operation.")
-            });
-        } else {
-            next();
-        }
+    requireAnyCap(cap) {
+        if (typeof cap !== 'number')
+            throw new TypeError(`Invalid call to requireAnyRole`);
+        return function(req, res, next) {
+            if ((req.user.caps & cap) === 0) {
+                res.status(403).render('error', {
+                    page_title: req._("Thingpedia - Error"),
+                    message: req._("You do not have permission to perform this operation.")
+                });
+            } else {
+                next();
+            }
+        };
     },
 
     requireScope(scope) {

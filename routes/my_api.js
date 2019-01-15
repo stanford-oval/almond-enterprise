@@ -203,15 +203,10 @@ WebsocketAssistantDelegate.prototype.$rpcMethods = ['send', 'sendPicture', 'send
 async function doConversation(user, ws, req) {
     try {
         const backend = req.app.backend;
-
-        // FIXME: pass the appropriate options here to set up access control, and don't set isOwner
-        const assistantUser = { name: user.human_name || user.username, isOwner: true };
-        const options = { showWelcome: true };
-
         const delegate = new WebsocketAssistantDelegate(ws);
 
         let opened = false, earlyClose = false;
-        const id = 'web-' + makeRandom(4);
+        const id = 'enterprise:' + req.user.cloud_id + ':' + makeRandom(4);
         ws.on('error', (err) => {
             ws.close();
         });
@@ -228,7 +223,8 @@ async function doConversation(user, ws, req) {
                 delegate.$free();
         });
 
-        const conversation = await backend.assistant.openConversation(id, assistantUser, delegate, options);
+        const options = { showWelcome: true };
+        const conversation = await backend.assistant.openConversation(id, req.user, delegate, options);
         opened = true;
         ws.on('message', (data) => {
             Promise.resolve().then(() => {
