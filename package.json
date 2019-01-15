@@ -82,7 +82,6 @@
     "tough-cookie": "^2.4.3"
   },
   "optionalDependencies": {
-    "aws-sdk": "^2.2.48"
   },
   "nyc": {
     "exclude": [
