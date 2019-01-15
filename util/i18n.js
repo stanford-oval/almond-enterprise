@@ -14,12 +14,10 @@ const Gettext = require('node-gettext');
 const gettextParser = require('gettext-parser');
 const fs = require('fs');
 
-const languages = {};
-
 function normalize(posixLocale) {
     const [language, country] = posixLocale.split(/[-_@.]/);
     if (country)
-        return language + '-' + country.toUpperCase;
+        return language + '-' + country.toUpperCase();
     else
         return language;
 }

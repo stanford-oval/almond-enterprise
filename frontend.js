@@ -144,7 +144,7 @@ class Frontend {
         // as we don't need CSRF protection for that
         //this._app.use('/api/webhook', require('./routes/webhook'));
         this._app.use('/api/oauth2', require('./routes/oauth2'));
-        //this._app.use('/me/api', require('./routes/my_api'));
+        this._app.use('/api', require('./routes/my_api'));
 
         this._app.use(csurf({ cookie: false }));
         this._app.use((req, res, next) => {
@@ -160,6 +160,7 @@ class Frontend {
         //this._app.use('/profiles', require('./routes/thingpedia_profiles'));
         this._app.use('/user', require('./routes/user'));
         this._app.use('/admin', require('./routes/admin'));
+        this._app.use('/admin/devices', require('./routes/devices'));
 
         this._app.use((req, res) => {
             // if we get here, we have a 404 response

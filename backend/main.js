@@ -15,6 +15,8 @@ const rpc = require('transparent-rpc');
 const net = require('net');
 const sockaddr = require('sockaddr');
 
+const Engine = require('thingengine-core');
+
 const JsonDatagramSocket = require('../util/json_datagram_socket');
 const EnterpriseAlmondBackend = require('./backend');
 
@@ -84,12 +86,18 @@ class ControlSocketServer {
 }
 
 function main() {
-    const backend = new EnterpriseAlmondBackend();
+    global.platform = require('./platform');
+    global.platform.init();
 
+    const engine = new Engine(global.platform, { thingpediaUrl: Config.THINGPEDIA_URL });
+    global.platform.createAssistant(engine);
+
+    const backend = new EnterpriseAlmondBackend(engine, global.platform.getCapability('assistant'));
     const controlSocket = new ControlSocketServer(backend);
 
-    controlSocket.start().then(() => {
-        return backend.start();
+    controlSocket.start().then(async () => {
+        await engine.open();
+        await backend.start();
     }).catch((e) => {
         console.error('Failed to start: ' + e.message);
         console.error(e.stack);
@@ -106,6 +114,7 @@ function main() {
                 backend.stop(),
                 controlSocket.stop()
             ]);
+            await engine.close();
         } catch(e) {
             console.error('Failed to stop: ' + e.message);
             console.error(e.stack);

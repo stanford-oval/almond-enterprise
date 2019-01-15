@@ -22,8 +22,11 @@ module.exports.ASSET_CDN = '';
 // Address of the backend process (as ip:port)
 module.exports.BACKEND_ADDRESS = '127.0.0.1:8001';
 
+// Encryption key of the backend sqlite database
+module.exports.THINGENGINE_STORAGE_KEY = null;
+
 module.exports.THINGPEDIA_URL = 'https://thingpedia.stanford.edu/thingpedia';
-module.exports.DEVELOPER_KEY = null;
+module.exports.THINGPEDIA_DEVELOPER_KEY = null;
 
 // the origin (scheme, hostname, port) where the server is reachable
 // this is used for redirects, and to enable special behavior for the main

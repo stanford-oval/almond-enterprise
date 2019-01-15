@@ -20,6 +20,8 @@ const Config = require('../config');
 
 var _instance;
 
+const methods = require('./backend').prototype.$rpcMethods;
+
 module.exports = class BackendClient extends events.EventEmitter {
     constructor() {
         super();
@@ -28,6 +30,7 @@ module.exports = class BackendClient extends events.EventEmitter {
         this._expectClose = false;
         this._reconnectTimeout = null;
         this._rpcControl = null;
+        this._assistant = null;
         this._rpcSocket = null;
 
         _instance = this;
@@ -51,6 +54,9 @@ module.exports = class BackendClient extends events.EventEmitter {
             if (msg.control === 'ready') {
                 console.log('Control channel to EngineManager ready');
                 this._rpcControl = this._rpcSocket.getProxy(msg.rpcId);
+                this._rpcControl.assistant.then((assistant) => {
+                    this._assistant = assistant;
+                });
                 jsonSocket.removeListener('data', ready);
             }
         };
@@ -72,6 +78,12 @@ module.exports = class BackendClient extends events.EventEmitter {
         });
     }
 
+    get assistant() {
+        if (!this._rpcControl)
+            throw new Error('Backend died');
+        return this._assistant;
+    }
+
     start() {
         this._connect();
     }
@@ -82,10 +94,17 @@ module.exports = class BackendClient extends events.EventEmitter {
 
         this._expectClose = true;
         this._rpcSocket.end();
-
-        for (let engine in this._cachedEngines.values())
-            engine.socket.end();
     }
-
-    // frontend<->backend API here...
 };
+for (let m of methods) {
+    if (m.startsWith('get '))
+        continue;
+    module.exports.prototype[m] = function() {
+        if (!this._rpcControl) {
+            const e = new Error('Backend died');
+            e.code = 'ENXIO';
+            return Promise.reject(e);
+        }
+        return this._rpcControl[m].apply(this._rpcControl, arguments);
+    };
+}

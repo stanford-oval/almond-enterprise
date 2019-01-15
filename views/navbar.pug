@@ -5,10 +5,10 @@ ul.nav.navbar-nav
     if page.navbar !== null
       li
         a(href='/about/' + page.url)= _(page.navbar)
-  //-li
+  li
     a(href="/conversation")= _("Conversation")
-  if authenticated && user.roles != 0
-    //-li
+  if authenticated && user.roles !== 0
+    li
       a(href="/admin")= _("Admin")
 
 ul.nav.navbar-nav.navbar-right

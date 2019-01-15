@@ -22,6 +22,11 @@ function hashPassword(salt, password) {
 
 const OAuthScopes = new Set([
     'profile', // minimum scope: see the user's profile
+
+    'user-read', // read active commands and devices
+    'user-read-results', // read results of active commands
+    'user-exec-command', // execute thingtalk (includes web almond access)
+
 ]);
 
 function isAuthenticated(req) {
@@ -44,9 +49,10 @@ module.exports = {
 
     Role: {
         ADMIN: 1,
+        MANAGE_DEVICES: 2,
 
         // all privileges
-        ROOT: 1
+        ROOT: 3
     },
 
     ProfileFlags: {
@@ -124,6 +130,8 @@ module.exports = {
     },
 
     requireRole(role) {
+        if (typeof role !== 'number')
+            throw new TypeError(`Invalid call to requireRole`);
         return function(req, res, next) {
             if ((req.user.roles & role) !== role) {
                 res.status(403).render('error', {

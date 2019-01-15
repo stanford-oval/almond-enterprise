@@ -49,4 +49,8 @@ router.get('/about/privacy', (req, res, next) => {
     });
 });
 
+router.get('/conversation', (req, res, next) => {
+    res.render('conversation', { page_title: req._("Thingpedia - Web Almond") });
+});
+
 module.exports = router;

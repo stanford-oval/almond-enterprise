@@ -4,7 +4,6 @@ block styles
   link(rel='stylesheet', href=Config.ASSET_CDN + '/stylesheets/thingpedia.css')
 
 block page_name
-  - stdlayout = false;
   = _("Administration")
 
 block content
@@ -12,4 +11,7 @@ block content
     if user.roles & Constants.Role.ADMIN
       li
         a(href='/admin/users') Users
+    if user.roles & Constants.Role.MANAGE_DEVICES
+      li
+        a(href='/admin/devices') Configured devices
 
