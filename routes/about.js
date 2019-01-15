@@ -14,7 +14,6 @@
 const express = require('express');
 
 const Config = require('../config');
-const db = require('../util/db');
 
 let router = express.Router();
 

@@ -33,30 +33,6 @@ const TOTP_PERIOD = 30; // duration in second of TOTP code
 
 var router = express.Router();
 
-router.get('/oauth2/google', passport.authenticate('google', {
-    scope: userUtils.GOOGLE_SCOPES,
-}));
-router.get('/oauth2/google/callback', passport.authenticate('google'), (req, res, next) => {
-    // skip 2fa if logged in with Google
-    req.session.completed2fa = true;
-
-    if (req.user.newly_created) {
-        req.user.newly_created = false;
-        res.locals.authenticated = true;
-        res.locals.user = req.user;
-        res.render('register_success', {
-            page_title: req._("Almond - Registration Successful"),
-            username: req.user.username,
-            cloudId: req.user.cloud_id,
-            authToken: req.user.auth_token });
-    } else {
-        // Redirection back to the original page
-        var redirect_to = req.session.redirect_to ? req.session.redirect_to : '/';
-        delete req.session.redirect_to;
-        res.redirect(303, redirect_to);
-    }
-});
-
 router.get('/login', (req, res, next) => {
     if (req.user) {
         if (req.session.completed2fa || req.user.totp_key === null)
