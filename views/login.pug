@@ -21,9 +21,11 @@ block content
     div.form-group
       button(type='submit').btn.btn-primary= _("Log in")
 
-  p= _("Don't have a username and password yet? ")
+  p
+    = _("Don't have a username and password yet?")
+    br
     for role in roles
-      a(href='/user/register?role=' + role.id)= _("Sign up as %s").format(role.name)
+      a(href='/user/register?role=' + role.id).btn.btn-primary.btn-sm= _("Sign up as %s").format(role.name)
       |
       |
   p

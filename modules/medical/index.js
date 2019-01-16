@@ -10,6 +10,7 @@
 "use strict";
 
 const userUtils = require('../../util/user');
+const roleModel = require('../../model/role');
 
 const BaseAlmondUser = require('../default').AlmondUser;
 
@@ -42,4 +43,25 @@ module.exports = {
         // by default, there are no user-specific apps
         return [];
     },
+
+    async createDefaultRoles(dbClient) {
+        await roleModel.create(dbClient, {
+            name: 'Patient',
+            caps: userUtils.Capability.MANAGE_OWN_PERMISSIONS,
+            flags: userUtils.RoleFlags.CAN_REGISTER
+        });
+
+        await roleModel.create(dbClient, {
+            name: 'Researcher',
+            caps: 0,
+            flags: userUtils.RoleFlags.CAN_REGISTER
+        });
+
+        const rootRole = await roleModel.create(dbClient, {
+            name: 'System Administrator',
+            caps: userUtils.Capability.ROOT,
+            flags: 0
+        });
+        return rootRole.id;
+    }
 };

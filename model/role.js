@@ -13,24 +13,24 @@ const db = require('../util/db');
 
 module.exports = {
     async create(dbClient, role) {
-        const id = await db.insertOne(dbClient, `insert into role set ?`, [role]);
+        const id = await db.insertOne(dbClient, `insert into roles set ?`, [role]);
         role.id = id;
         return role;
     },
 
     update(dbClient, id, role) {
-        return db.query(dbClient, `update role set ? where id = ?`, [role, id]);
+        return db.query(dbClient, `update roles set ? where id = ?`, [role, id]);
     },
 
     get(dbClient, id) {
-        return db.selectOne(dbClient, `select * from role where id = ?`);
+        return db.selectOne(dbClient, `select * from roles where id = ?`, [id]);
     },
 
     getAll(dbClient) {
-        return db.selectAll(dbClient, `select * from role order by name asc`);
+        return db.selectAll(dbClient, `select * from roles order by name asc`);
     },
 
-    getWithFlag(dbClient, flag) {
-        return db.selectAll(dbClient, `select * from role where (flag & ?) = ? order by name asc`, [flag, flag]);
+    getAllWithFlag(dbClient, flag) {
+        return db.selectAll(dbClient, `select * from roles where (flags & ?) = ? order by name asc`, [flag, flag]);
     }
 }

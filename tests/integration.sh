@@ -13,9 +13,11 @@ srcdir=`realpath $srcdir`
 DATABASE_URL="mysql://almond-enterprise:almond-enterprise@localhost/almond_enterprise_test"
 export DATABASE_URL
 
-cat > $srcdir/secret_config.js <<'EOF'
+if ! test -f $srcdir/secret_config.js ; then
+	cat > $srcdir/secret_config.js <<'EOF'
 module.exports.THINGPEDIA_URL = 'https://almond-dev.stanford.edu/thingpedia';
 EOF
+fi
 
 # clean the database and bootstrap
 $srcdir/scripts/execute-sql-file.js $srcdir/model/schema.sql
@@ -24,9 +26,9 @@ eval $(node $srcdir/scripts/bootstrap.js)
 workdir=`mktemp -t -d webalmond-integration-XXXXXX`
 workdir=`realpath $workdir`
 on_error() {
-    test -n "$frontendpid" && kill $frontendpid
+    test -n "$frontendpid" && kill $frontendpid || true
     frontendpid=
-    test -n "$masterpid" && kill $masterpid
+    test -n "$masterpid" && kill $masterpid || true
     masterpid=
     wait
 

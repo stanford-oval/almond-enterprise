@@ -10,6 +10,7 @@
 "use strict";
 
 const userUtils = require('../../util/user');
+const roleModel = require('../../model/role');
 
 class AlmondUser {
     constructor(dbUser, engine) {
@@ -74,4 +75,19 @@ module.exports = {
         // by default, there are no user-specific apps
         return [];
     },
+
+    async createDefaultRoles(dbClient) {
+        await roleModel.create(dbClient, {
+            name: 'User',
+            caps: 0,
+            flags: userUtils.RoleFlags.CAN_REGISTER
+        });
+
+        const rootRole = await roleModel.create(dbClient, {
+            name: 'System Administrator',
+            caps: userUtils.Capability.ROOT,
+            flags: 0
+        });
+        return rootRole.id;
+    }
 };

@@ -8,8 +8,6 @@ block page_name
   | Almond
 
 block content
-  div#cloud-id-holder(data-cloud-id=user.cloud_id, data-auth-token=user.auth_token)
-
   div.jumbotron.text-center
     h1= _("Welcome to Almond, %s!").format(username)
 

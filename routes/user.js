@@ -43,7 +43,7 @@ router.get('/login', (req, res, next) => {
     }
 
     db.withClient((dbClient) => {
-        return roleModel.getAllWithFlag(userUtils.RoleFlags.CAN_REGISTER);
+        return roleModel.getAllWithFlag(dbClient, userUtils.RoleFlags.CAN_REGISTER);
     }).then((roles) => {
         res.render('login', {
             csrfToken: req.csrfToken(),
@@ -229,16 +229,6 @@ router.post('/register', (req, res, next) => {
             throw new Error(req._("The password and the confirmation do not match"));
         options.password = req.body['password'];
 
-        if (!req.body['timezone'])
-            req.body['timezone'] = 'America/Los_Angeles';
-        if (typeof req.body['timezone'] !== 'string' ||
-            typeof req.body['locale'] !== 'string' ||
-            !/^([a-z+\-0-9_]+\/[a-z+\-0-9_]+|[a-z+\-0-9_]+)$/i.test(req.body['timezone']) ||
-            !/^[a-z]{2,}-[a-z]{2,}/i.test(req.body['locale']))
-            throw new Error("Invalid localization data");
-        options.timezone = req.body['timezone'];
-        options.locale = req.body['locale'];
-
     } catch(e) {
         res.render('register', {
             csrfToken: req.csrfToken(),
@@ -258,7 +248,7 @@ router.post('/register', (req, res, next) => {
             } catch(e) {
                 res.render('error', {
                     page_title: req._("Almond - Error"),
-                    error: e
+                    message: e
                 });
                 return null;
             }

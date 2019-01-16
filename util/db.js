@@ -14,7 +14,7 @@ const mysql = require('mysql');
 function getDB() {
     var url = process.env.DATABASE_URL;
     if (url === undefined)
-        return "mysql://thingengine:thingengine@localhost/thingengine?charset=utf8mb4_bin";
+        return "mysql://almond-enterprise:almond-enterprise@localhost/almond_enterprise?charset=utf8mb4_bin";
     else
         return url;
 }

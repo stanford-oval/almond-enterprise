@@ -13,6 +13,8 @@
 
 const express = require('express');
 
+const user = require('../util/user');
+
 const Config = require('../config');
 
 let router = express.Router();
@@ -48,7 +50,7 @@ router.get('/about/privacy', (req, res, next) => {
     });
 });
 
-router.get('/conversation', (req, res, next) => {
+router.get('/conversation', user.requireLogIn, (req, res, next) => {
     res.render('conversation', { page_title: req._("Thingpedia - Web Almond") });
 });
 

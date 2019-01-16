@@ -36,7 +36,7 @@ exports.initialize = function() {
     });
 
     passport.deserializeUser((id, done) => {
-        db.withClient((client) => model.get(client, id)).nodeify(done);
+        db.withClient((client) => model.get(client, id)).then((r) => done(null, r), done);
     });
 
     passport.use(new BearerStrategy(async (accessToken, done) => {
