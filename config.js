@@ -72,7 +72,7 @@ module.exports.EXTRA_ABOUT_PAGES = [];
 module.exports.EXTRA_ORIGINS = [];
 
 // the URL of a luinet-compatible Natural Language parsing server
-module.exports.NL_SERVER_URL = 'https://almond-nl.stanford.edu';
+module.exports.NL_SERVER_URL = 'https://almond-nl.stanford.edu/@com.mai-hub';
 
 // Mailgun user/password for emails sent from Almond
 module.exports.MAILGUN_USER = null;
