@@ -23,13 +23,16 @@ module.exports = class AuditManager {
     }
 
     start() {
-
     }
     stop() {
 
     }
 
-    write(key, value) {
-        return this._backend.insertAuditData(key, JSON.stringify(value));
+    async write(key, value) {
+        await this._backend.unlockEthAccount();
+        await this._backend.insertAuditData({
+            key: key,
+            data: JSON.stringify(value)
+        });
     }
 };
