@@ -25,11 +25,12 @@ Conversation.prototype.$rpcMethods = ['start', 'handleCommand', 'handleParsedCom
 
 
 module.exports = class Assistant extends events.EventEmitter {
-    constructor(engine, options) {
+    constructor(engine, audit, options) {
         super();
 
         this._url = Config.NL_SERVER_URL;
         this._engine = engine;
+        this._audit = audit;
         this._conversations = {};
         this._lastConversation = null;
 
@@ -77,7 +78,7 @@ module.exports = class Assistant extends events.EventEmitter {
         }
         options = options || {};
         options.sempreUrl = this._url;
-        let conv = this.openConversation(id, new AlmondUser(user), delegate, options);
+        let conv = this.openConversation(id, new AlmondUser(user, this._engine, this._audit), delegate, options);
         return Promise.resolve(conv.start()).then(() => conv);
     }
 
@@ -88,7 +89,7 @@ module.exports = class Assistant extends events.EventEmitter {
         }
         options = options || {};
         options.sempreUrl = this._url;
-        var conv = new Conversation(this._engine, feedId, new AlmondUser(user), delegate, options);
+        var conv = new Conversation(this._engine, feedId, new AlmondUser(user, this._engine, this._audit), delegate, options);
         conv.on('active', () => this._lastConversation = conv);
         this._lastConversation = conv;
         this._conversations[feedId] = conv;

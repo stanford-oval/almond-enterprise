@@ -13,8 +13,6 @@
 
 const express = require('express');
 
-const user = require('../util/user');
-
 const Config = require('../config');
 
 let router = express.Router();
@@ -48,10 +46,6 @@ router.get('/about/privacy', (req, res, next) => {
     res.render(Config.ABOUT_OVERRIDE['privacy'] || 'about_privacy', {
         page_title: req._("Almond Privacy Policy")
     });
-});
-
-router.get('/conversation', user.requireLogIn, (req, res, next) => {
-    res.render('conversation', { page_title: req._("Thingpedia - Web Almond") });
 });
 
 module.exports = router;

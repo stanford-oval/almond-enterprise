@@ -19,6 +19,7 @@ const Engine = require('thingengine-core');
 
 const JsonDatagramSocket = require('../util/json_datagram_socket');
 const EnterpriseAlmondBackend = require('./backend');
+const AuditManager = require('./auditor');
 
 const Config = require('../config');
 
@@ -90,13 +91,15 @@ function main() {
     global.platform.init();
 
     const engine = new Engine(global.platform, { thingpediaUrl: Config.THINGPEDIA_URL });
-    global.platform.createAssistant(engine);
+    const audit = new AuditManager();
+    global.platform.createAssistant(engine, audit);
 
     const backend = new EnterpriseAlmondBackend(engine, global.platform.getCapability('assistant'));
     const controlSocket = new ControlSocketServer(backend);
 
     controlSocket.start().then(async () => {
         await engine.open();
+        await audit.start();
         await backend.start();
     }).catch((e) => {
         console.error('Failed to start: ' + e.message);
@@ -112,6 +115,7 @@ function main() {
         try {
             await Promise.all([
                 backend.stop(),
+                audit.stop(),
                 controlSocket.stop()
             ]);
             await engine.close();

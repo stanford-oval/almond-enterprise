@@ -153,12 +153,12 @@ class Frontend {
         });
 
         this._app.use('/', require('./routes/about'));
+        this._app.use('/user', require('./routes/user'));
+        this._app.use('/', require('./routes/my_stuff'));
 
-        //this._app.use('/conversation', require('./routes/my_stuff'));
         //this._app.use('/devices', require('./routes/devices_compat'));
 
         //this._app.use('/profiles', require('./routes/thingpedia_profiles'));
-        this._app.use('/user', require('./routes/user'));
         this._app.use('/admin', require('./routes/admin'));
         this._app.use('/admin/devices', require('./routes/devices'));
 

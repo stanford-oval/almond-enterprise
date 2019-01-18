@@ -1,0 +1,45 @@
+extends layout
+
+block scripts
+  script(src=Config.ASSET_CDN + '/javascripts/apps.js')
+
+block page_name
+  = _("My Almond")
+
+block styles
+  link(rel='stylesheet', href=Config.ASSET_CDN + '/stylesheets/my_stuff.css')
+
+block content
+  for message in messages
+    div.alert.alert-success.alert-dismissible.fade.in(role='alert')
+      button(type='button', data-dismiss='alert', aria-label="Close").close
+        span(aria-hidden='true') ×
+      p= message
+
+  if user.caps & Constants.Capability.MANAGE_OWN_COMMANDS
+    h3= _("Active Commands")
+    div.row
+      div.col-lg-6.col-xs-12
+        div.command-list.list-group
+          for app in apps
+            div.app-template.list-group-item
+              form.form-inline(action="/apps/delete",method="post").form-delete.form-delete-app
+                input(type='hidden',name='id',value=app.uniqueId)
+                input(type='hidden',name='_csrf',value=csrfToken)
+                button(type='submit').btn.btn-sm.btn-danger= _("Stop")
+              p= app.description
+              if app.error
+                p= _("This rule had an error: %s").format(app.error)
+
+  if user.caps & Constants.Capability.MANAGE_OWN_PERMISSIONS
+    h3= _("Enabled Permissions")
+    div.row
+      div.col-lg-6.col-xs-12
+        div.command-list.list-group
+          for perm in permissions
+            div.app-template.list-group-item
+              form.form-inline(action="/permissions/delete",method="post").form-delete.form-delete-app
+                input(type='hidden',name='id',value=perm.uniqueId)
+                input(type='hidden',name='_csrf',value=csrfToken)
+                button(type='submit').btn.btn-sm.btn-danger= _("Revoke")
+              p= perm.description

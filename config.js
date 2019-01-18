@@ -85,6 +85,11 @@ module.exports.EMAIL_FROM_ADMIN = 'Almond <root@medxchange.almond.stanford.edu>'
 // To: field of admin emails
 module.exports.EMAIL_TO_ADMIN = 'thingpedia-admins@lists.stanford.edu';
 
+// Config file of ethereum-audit library
+// By default, use the embedded config file
+// path is resolved relative to this file
+module.exports.ETH_AUDIT_CONFIG_FILE = './node_modules/ethereum-audit/data/config.json';
+
 // load more configuration that should not go in git (eg secret keys)
 try {
     Object.assign(module.exports, require('./secret_config.js'));

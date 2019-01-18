@@ -7,6 +7,9 @@ ul.nav.navbar-nav
         a(href='/about/' + page.url)= _(page.navbar)
   li
     a(href="/conversation")= _("Conversation")
+  if authenticated && (user.caps & (Constants.Capability.MANAGE_OWN_COMMANDS | Constants.Capability.MANAGE_OWN_PERMISSIONS)) !== 0
+    li
+      a(href='/dashboard')= _("Dashboard")
   if authenticated && (user.caps & Constants.Capability.ALL_ADMIN) !== 0
     li
       a(href="/admin")= _("Admin")

@@ -68,8 +68,8 @@ module.exports = {
         this._assistant = null;
     },
 
-    createAssistant(engine, options) {
-        this._assistant = new Assistant(engine, options);
+    createAssistant(engine, audit, options) {
+        this._assistant = new Assistant(engine, audit, options);
         // for compat
         engine.assistant = this._assistant;
     },

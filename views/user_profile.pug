@@ -50,6 +50,10 @@ block content
           label.control-label(for='human-name')= _("Real name")
           input(type='text',name='human_name',value=user.human_name).form-control#human-name
 
+        div.form-group
+          label.control-label= _("Role")
+          p.form-control-static= user.role_name
+
         //-div.form-group
           div.checkbox
             label

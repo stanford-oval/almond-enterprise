@@ -53,9 +53,10 @@ const Capability = {
     MANAGE_ALL_PERMISSIONS: 16,
     MANAGE_OWN_COMMANDS: 32,
     MANAGE_ALL_COMMANDS: 64,
+    RUN_UNRESTRICTED_COMMANDS: 128,
 
     // all privileges
-    ROOT: 127,
+    ROOT: 255,
     // all admin privileges
     ALL_ADMIN: 1+2+4+16+64
 };

@@ -12,6 +12,7 @@
 const Url = require('url');
 
 const Config = require('../config');
+const PolicyModule = Config.POLICY_MODULE;
 
 function describeApp(app) {
     return {
@@ -57,6 +58,9 @@ module.exports = class EnterpriseAlmondBackend {
     getAllApps() {
         return this._engine.apps.getAllApps().map(describeApp);
     }
+    getUserApps(userId) {
+        return PolicyModule.getUserApps(this._engine, userId).map(describeApp);
+    }
     getApp(appId) {
         const app = this._engine.apps.getApp(appId);
         if (app)
@@ -69,6 +73,34 @@ module.exports = class EnterpriseAlmondBackend {
         if (!app)
             return false;
         await this._engine.apps.removeApp(app);
+        return true;
+    }
+    async deleteAppForUser(appId, userId) {
+        const app = this._engine.apps.getApp(appId);
+        if (!app || !PolicyModule.isUserApp(app, userId))
+            return false;
+        await this._engine.apps.removeApp(app);
+        return true;
+    }
+
+    getAllPermissions() {
+        return this._engine.permissions.getAllPermissions();
+    }
+    getUserPermissions(userId) {
+        return PolicyModule.getUserPermissionRules(this._engine, userId);
+    }
+    async removePermission(uniqueId) {
+        const perm = this._engine.permissions.getPermission(uniqueId);
+        if (!perm)
+            return false;
+        await this._engine.permissions.removePermission(uniqueId);
+        return true;
+    }
+    async removePermissionForUser(uniqueId, userId) {
+        const perm = this._engine.permissions.getPermission(uniqueId);
+        if (!perm || !PolicyModule.isUserPermissionRule(perm, userId))
+            return false;
+        await this._engine.permissions.removePermission(uniqueId);
         return true;
     }
 
@@ -112,6 +144,8 @@ module.exports = class EnterpriseAlmondBackend {
     }
 };
 module.exports.prototype.$rpcMethods = ['get assistant',
-    'getAllApps', 'getAllApps', 'getApp', 'deleteApp',
+    'getAllApps', 'getUserApps', 'getApp', 'deleteApp', 'deleteAppForUser',
+    'getAllPermissions', 'getUserPermissions', 'removePermission', 'removePermissionForUser',
+
     'getAllDevices', 'addDevice', 'deleteDevice', 'startOAuth2', 'handleOAuth2Callback'
 ];

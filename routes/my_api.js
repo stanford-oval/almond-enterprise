@@ -29,7 +29,7 @@ function isOriginOk(req) {
     if (req.headers['authorization'] && req.headers['authorization'].startsWith('Bearer '))
         return true;
     if (typeof req.headers['origin'] !== 'string')
-        return false;
+        return true;
     return ALLOWED_ORIGINS.indexOf(req.headers['origin'].toLowerCase()) >= 0;
 }
 
@@ -80,7 +80,7 @@ router.get('/parse', user.requireScope('user-read'), (req, res, next) => {
 });
 */
 
-router.post('/apps/create', user.requireScope('user-exec-command'), (req, res, next) => {
+router.post('/apps/create', user.requireScope('user-exec-command'), user.requireCap(user.Capability.MANAGE_ALL_COMMANDS), (req, res, next) => {
     Promise.resolve().then(async () => {
         const backend = req.app.backend;
         const result = await backend.assistant.createApp(req.body);
@@ -90,14 +90,14 @@ router.post('/apps/create', user.requireScope('user-exec-command'), (req, res, n
     }).catch(next);
 });
 
-router.get('/apps/list', user.requireScope('user-read'), (req, res, next) => {
+router.get('/apps/list', user.requireScope('user-read'), user.requireCap(user.Capability.MANAGE_ALL_COMMANDS), (req, res, next) => {
     Promise.resolve().then(async () => {
         const backend = req.app.backend;
         res.json(await backend.getAllApps());
     }).catch(next);
 });
 
-router.get('/apps/get/:appId', user.requireScope('user-read'), (req, res, next) => {
+router.get('/apps/get/:appId', user.requireScope('user-read'), user.requireCap(user.Capability.MANAGE_ALL_COMMANDS), (req, res, next) => {
     Promise.resolve().then(async () => {
         const backend = req.app.backend;
         const app = await backend.getApp(req.params.appId);
@@ -110,7 +110,7 @@ router.get('/apps/get/:appId', user.requireScope('user-read'), (req, res, next) 
     }).catch(next);
 });
 
-router.post('/apps/delete/:appId', user.requireScope('user-exec-command'), (req, res, next) => {
+router.post('/apps/delete/:appId', user.requireScope('user-exec-command'), user.requireCap(user.Capability.MANAGE_ALL_COMMANDS), (req, res, next) => {
     Promise.resolve().then(async () => {
         const backend = req.app.backend;
         const ok = await backend.deleteApp(req.params.appId);
@@ -140,7 +140,7 @@ class WebsocketApiDelegate {
 }
 WebsocketApiDelegate.prototype.$rpcMethods = ['send'];
 
-router.ws('/results', user.requireScope('user-read-results'), (ws, req, next) => {
+router.ws('/results', user.requireScope('user-read-results'), user.requireCap(user.Capability.MANAGE_ALL_COMMANDS), (ws, req, next) => {
     Promise.resolve().then(() => {
         const backend = req.app.backend;
 

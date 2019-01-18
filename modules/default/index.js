@@ -34,14 +34,23 @@ class AlmondUser {
         return !!(this._dbUser.caps & userUtils.Capability.MANAGE_ALL_PERMISSIONS);
     }
 
-    adjustAndLogPermissionRule(rule, description) {
-        // return the program unmodified, log nothing
-        return [rule, description];
+    adjustPermissionRule(rule, description) {
+        // return the rule unmodified
+        return [rule, description, {}];
+    }
+    adjustProgram(program, description, appMeta) {
+        // return the program unmodified, but mark the user who owns this program
+        // (who can later stop it from its dashboard)
+        appMeta.owner = this.id;
+        return [program, description, appMeta];
     }
 
     canExecute(program) {
-        if (this._dbUser.caps & userUtils.Capability.MANAGE_ALL_COMMANDS)
+        if ((this._dbUser.caps & userUtils.Capability.MANAGE_ALL_COMMANDS) ||
+            (this._dbUser.caps & userUtils.Capability.RUN_UNRESTRICTED_COMMANDS))
             return true;
+        if (!(this._dbUser.caps & userUtils.Capability.MANAGE_OWN_COMMANDS))
+            return false;
         if (program.principal) // never allow remote execution
             return false;
 
@@ -49,7 +58,8 @@ class AlmondUser {
         return this._engine.permissions.checkCanBeAllowed(this.principal, program);
     }
     applyPermissionRules(program) {
-        if (this._dbUser.caps & userUtils.Capability.MANAGE_ALL_COMMANDS)
+        if ((this._dbUser.caps & userUtils.Capability.MANAGE_ALL_COMMANDS) ||
+            (this._dbUser.caps & userUtils.Capability.RUN_UNRESTRICTED_COMMANDS))
             return program;
         if (program.principal) // never allow remote execution
             return null;
@@ -58,22 +68,29 @@ class AlmondUser {
         return this._engine.permissions.checkIsAllowed(this.principal, program);
     }
 
-    adjustAndLogProgram(program, description) {
-        // return the program unmodified, log nothing
-        return [program, description];
+    async logPermissionRule(uniqueId, permissionRule, description, metadata) {
+    }
+    async logProgramExecution(uniqueId, program, description, metadata) {
     }
 }
 
 module.exports = {
     AlmondUser,
 
-    getUserPermissionRules(engine, dbUser) {
-        // by default, there are no user-specific permission rules
+    // by default, there are no user-specific permission rules
+    getUserPermissionRules(engine, userId) {
         return [];
     },
-    getUserApps(engine, dbUser) {
-        // by default, there are no user-specific apps
-        return [];
+    isUserPermissionRule(rule, userId) {
+        return false;
+    },
+    getUserApps(engine, userId) {
+        return engine.apps.getAllApps().filter((app) => {
+            return app.state.owner === userId;
+        });
+    },
+    isUserApp(app, userId) {
+        return app.state.owner === userId;
     },
 
     async createDefaultRoles(dbClient) {
