@@ -33,4 +33,4 @@ module.exports = {
     getAllWithFlag(dbClient, flag) {
         return db.selectAll(dbClient, `select * from roles where (flags & ?) = ? order by name asc`, [flag, flag]);
     }
-}
+};

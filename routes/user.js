@@ -10,7 +10,6 @@
 "use strict";
 
 const Url = require('url');
-const Tp = require('thingpedia');
 const express = require('express');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
