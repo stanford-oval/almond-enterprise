@@ -81,7 +81,8 @@ module.exports = {
                 throw new Error(req._("A user with this name already exists"));
 
             var salt = makeRandom();
-            var cloudId = makeRandom(8);
+            // HACK for demo purposes
+            var cloudId = (options.username === 'bob' ? '926019af7747499a' : makeRandom(8));
             return hashPassword(salt, options.password).then((hash) => {
                 return model.create(dbClient, {
                     username: options.username,
