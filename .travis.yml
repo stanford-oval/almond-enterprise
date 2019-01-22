@@ -21,6 +21,8 @@ before_install:
 install:
 - sudo apt-get install -y graphicsmagick realpath
 - yarn
+# hack
+- (cd node_modules/thingengine-core ; yarn prepare)
 before_script:
 - mysql -u root -e "create database if not exists almond_enterprise_test; grant all privileges
   on almond_enterprise_test.* to 'almond-enterprise'@'%' identified by 'almond-enterprise';"
