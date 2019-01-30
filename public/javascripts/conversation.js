@@ -67,6 +67,7 @@ $(function() {
         var btn = $('<a>').addClass('message message-choice btn btn-default')
             .attr('href', '#').text(title);
         btn.click(function(event) {
+            appendUserMessage(title);
             handleChoice(idx, title);
             event.preventDefault();
         });
@@ -80,6 +81,7 @@ $(function() {
         var btn = $('<a>').addClass('message message-button btn btn-default')
             .attr('href', '#').text(title);
         btn.click(function(event) {
+            appendUserMessage(title);
             handleParsedCommand(json, title);
             event.preventDefault();
         });
@@ -107,6 +109,7 @@ $(function() {
         var btn = $('<a>').addClass('message message-yesno btn btn-default')
             .attr('href', '#').text("Yes");
         btn.click(function(event) {
+            appendUserMessage("Yes");
             handleSpecial('yes', "Yes");
             event.preventDefault();
         });
@@ -116,6 +119,7 @@ $(function() {
         btn = $('<a>').addClass('message message-yesno btn btn-default')
             .attr('href', '#').text("No");
         btn.click(function(event) {
+            appendUserMessage("No");
             handleSpecial('no', "No");
             event.preventDefault();
         });
@@ -198,13 +202,17 @@ $(function() {
             handleThingTalk(text.substring(3));
             return;
         }
-
+        if ($('#input').attr('type') === 'password')
+            appendUserMessage("••••••••");
+        else
+            appendUserMessage(text);
         ws.send(JSON.stringify({ type: 'command', text: text }));
     }
     function handleParsedCommand(json, title) {
         ws.send(JSON.stringify({ type: 'parsed', json: json, title: title }));
     }
     function handleThingTalk(tt) {
+        appendUserMessage('\\t ' + tt);
         ws.send(JSON.stringify({ type: 'tt', code: tt }));
     }
     function handleChoice(idx, title) {
