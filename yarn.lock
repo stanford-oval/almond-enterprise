@@ -248,9 +248,9 @@ align-text@^0.1.1, align-text@^0.1.3:
     longest "^1.0.1"
     repeat-string "^1.5.2"
 
-"almond-dialog-agent@github:Stanford-Mobisocial-IoT-Lab/almond-dialog-agent":
+"almond-dialog-agent@github:stanford-oval/almond-dialog-agent":
   version "1.2.2"
-  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/almond-dialog-agent/tar.gz/9d64a280b0c8f58148f503fa5f0ad3fade70836b"
+  resolved "https://codeload.github.com/stanford-oval/almond-dialog-agent/tar.gz/9d64a280b0c8f58148f503fa5f0ad3fade70836b"
   dependencies:
     adt "~0.7.2"
     consumer-queue "^1.0.0"
@@ -2418,9 +2418,9 @@ eth-lib@0.2.7:
     elliptic "^6.4.0"
     xhr-request-promise "^0.1.2"
 
-"ethereum-audit@github:Stanford-Mobisocial-IoT-Lab/ethereum-audit":
+"ethereum-audit@github:stanford-oval/ethereum-audit":
   version "0.1.0"
-  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/ethereum-audit/tar.gz/2a718eb992ac2ba8856550cc6291d67223924135"
+  resolved "https://codeload.github.com/stanford-oval/ethereum-audit/tar.gz/2a718eb992ac2ba8856550cc6291d67223924135"
   dependencies:
     async "^2.6.1"
     debug "^4.1.1"
@@ -6583,9 +6583,9 @@ thenify-all@^1.0.0, thenify-all@^1.6.0:
   dependencies:
     any-promise "^1.0.0"
 
-"thingengine-core@github:Stanford-Mobisocial-IoT-Lab/thingengine-core":
+"thingengine-core@github:stanford-oval/thingengine-core":
   version "1.2.1"
-  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/thingengine-core/tar.gz/b47259cd1dae1362d9ecbe237d4b05b6dfe3d23b"
+  resolved "https://codeload.github.com/stanford-oval/thingengine-core/tar.gz/b47259cd1dae1362d9ecbe237d4b05b6dfe3d23b"
   dependencies:
     adt "^0.7.2"
     consumer-queue "^1.0.1"
