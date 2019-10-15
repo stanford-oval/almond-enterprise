@@ -63,10 +63,10 @@ class AlmondUser extends BaseAlmondUser {
         if (rule.query.isStar || rule.query.isClassStar)
             rule.query = new TT.Ast.PermissionFunction.Specified('com.mai-hub', 'find', TT.Ast.BooleanExpression.True, null);
 
-        rule.query.filter = TT.Ast.BooleanExpression.And([
-            rule.query.filter,
-            TT.Ast.BooleanExpression.Atom('patient', '==', TT.Ast.Value.String(this._dbUser.cloud_id))
-        ]).optimize();
+        // rule.query.filter = TT.Ast.BooleanExpression.And([
+        //     rule.query.filter,
+        //     TT.Ast.BooleanExpression.Atom('patient', '==', TT.Ast.Value.String(this._dbUser.cloud_id))
+        // ]).optimize();
 
         await rule.typecheck(this._engine.schemas, true);
         description = TT.Describe.describePermissionRule(this._engine.platform.getCapability('gettext'), rule);
