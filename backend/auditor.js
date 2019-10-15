@@ -29,7 +29,7 @@ module.exports = class AuditManager {
     }
 
     async write(key, value) {
-        await this._backend.unlockEthAccount();
+        //await this._backend.unlockEthAccount();
         await this._backend.insertAuditData({
             key: key,
             data: JSON.stringify(value)
